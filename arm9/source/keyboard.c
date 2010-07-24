@@ -16,7 +16,7 @@
  *  along with DSOrganize.  If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <nds.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +74,7 @@ void resetKeyboard()
 	insert = 1;
 	control = 0;
 	select = 0;
-	
+
 	curChar = 0;
 }
 
@@ -137,7 +137,7 @@ void setFakeHighlightEX(int subAmount)
 {
 	int tBegin = beginHighlight - subAmount;
 	int tEnd = endHighlight - subAmount;
-	
+
 	if(subAmount != 0)
 	{
 		if(tBegin < 0)
@@ -149,7 +149,7 @@ void setFakeHighlightEX(int subAmount)
 			tEnd = 0;
 		}
 	}
-	
+
 	setHighlightColor(genericHighlightColor);
 	setHighlight(tBegin, tEnd);
 }
@@ -163,11 +163,11 @@ void clearFakeHighlight()
 void toggleSelect()
 {
 	select = 1 - select;
-	
+
 	if(select == 1)
 	{
 		// set up selection
-		
+
 		beginHighlight = getKBCursor();
 		endHighlight = getKBCursor();
 	}
@@ -232,7 +232,7 @@ void moveKBCursorAbsolute(int newPos)
 		kbCursor = newPos;
 	blink = 1;
 	bCount = 0;
-	
+
 	if(isSelect())
 		endHighlight = kbCursor;
 }
@@ -255,7 +255,7 @@ bool blinkOn()
 void moveCursorRelative(int newPos)
 {
 	cursor += newPos;
-	
+
 	if(cursor < 0)
 		cursor = 0;
 }
@@ -263,12 +263,12 @@ void moveCursorRelative(int newPos)
 void moveKBCursorRelative(int newPos)
 {
 	kbCursor += newPos;
-	
+
 	if(kbCursor < 0)
 		kbCursor = 0;
 	blink = 1;
 	bCount = 0;
-	
+
 	if(isSelect())
 		endHighlight = kbCursor;
 }
@@ -310,7 +310,7 @@ int activeView()
 	{
 		if((caps == 0 && shift == 0) || (caps == 1 && shift == 1))
 		{
-			
+
 			if(special == 0)
 			{
 				// lowercase
@@ -336,17 +336,17 @@ int activeView()
 			}
 		}
 	}
-	
+
 	return ACTIVE_NONE;
 }
 
 char translateCode(int inCode, int keyBoard)
 {
 	char c = 0;
-	
+
 	if(inCode == -1)
 		return 0;
-		
+
 	if(inCode >= K_C)	// special keys!
 	{
 		switch(inCode)
@@ -373,61 +373,61 @@ char translateCode(int inCode, int keyBoard)
 				return SPL;
 				break;
 		}
-		
+
 		return 0;
 	}
-	
+
 	if(keyBoard == NUMBERS)
 	{
 		if(inCode > 11)
 			return 0;
-		
+
 		c = l_numbers[inCode];
 	}
-		
+
 	if(keyBoard == SYMBOLS)
 	{
 		if(inCode > 11)
 			return 0;
-		
+
 		c = l_symbols[inCode];
 	}
-		
+
 	if(keyBoard == LOWERCASE)
 	{
 		if(inCode > 33)
 			return 0;
-		
+
 		c = l_lowercase[inCode];
 	}
-		
+
 	if(keyBoard == UPPERCASE)
 	{
 		if(inCode > 33)
 			return 0;
-		
+
 		c = l_uppercase[inCode];
-	}	
-		
+	}
+
 	if(keyBoard == SPECIAL0)
 	{
 		if(inCode > 33)
 			return 0;
-		
+
 		c = l_special0[inCode];
 	}
-		
+
 	if(keyBoard == SPECIAL1)
 	{
 		if(inCode > 33)
 			return 0;
-		
+
 		c = l_special1[inCode];
 	}
-	
+
 	if(c == 32)
 		c = 0;
-	
+
 	return c;
 }
 
@@ -454,100 +454,100 @@ char executeClick(int px, int py)
 			{
 				toggleIns();
 			}
-			
+
 			if(px >= CTRL_LEFT && px <= CTRL_RIGHT)
 			{
 				toggleControl();
 			}
-			
+
 			if(px >= SELECT_LEFT && px <= SELECT_RIGHT)
 			{
 				toggleSelect();
 			}
-			
-			if(px >= CLEAR_LEFT && px <= CLEAR_RIGHT)	
-			{				
+
+			if(px >= CLEAR_LEFT && px <= CLEAR_RIGHT)
+			{
 				return CLEAR_KEY;
 			}
 		}
-		
+
 		return 0;
 	}
-	
+
 	if(activeKeyboard() == KB_MESSAGEASE)
 	{
 		downX = px;
 		downY = py;
 		upX = px;
 		upY = py;
-		
+
 		px -= 32;
 		py -= 37;
-		
+
 		if(px >= 1 && py >= 1 && px <= 31 && py <= 31) // caps
-		{			
+		{
 			toggleCaps();
 			downX = 0;
 			downY = 0;
 		}
-		
+
 		if(px >= 1 && py >= 33 && px <= 31 && py <= 62) // shift
 		{
 			toggleShift();
 			downX = 0;
 			downY = 0;
 		}
-		
+
 		if(px >= 1 && py >= 64 && px <= 31 && py <= 94) // special
 		{
 			toggleSpecial();
 			downX = 0;
 			downY = 0;
 		}
-		
+
 		if(px >= 160 && py >= 1 && px <= 190 && py <= 31) // backspace
 		{
 			return translateCode(K_B, SYMBOLS);
 		}
-		
+
 		if(px >= 160 && py >= 33 && px <= 190 && py <= 62) // return
 		{
 			return translateCode(K_R, SYMBOLS);
 		}
-		
+
 		if(px >= 129 && py >= 1 && px <= 158 && py <= 31) // delete
 		{
 			return translateCode(K_D, SYMBOLS);
 		}
-		
+
 		if(px >= 129 && py >= 33 && px <= 158 && py <= 62) // space
 		{
 			shift = 0;
 			return translateCode(K_W, SYMBOLS);
 		}
-		
+
 		if(px >= 129 && py >= 64 && px <= 158 && py <= 94) // number toggle
 		{
 			isNumbers = 1 - isNumbers;
 			downX = 0;
 			downY = 0;
 		}
-		
+
 		curChar = 0;
 		return 0;
 	}
-	
+
 	py -= 37;
-	
+
 	if(py < 0)
 		return 0;
-	
+
 	int tilex = 0;
 	int tiley = py / 19;
-	
+
 	if(tiley < 0 || tiley > 4)
 		return 0;
-	
+
 	switch(tiley)
 	{
 		case 0: // first row
@@ -561,7 +561,7 @@ char executeClick(int px, int py)
 				return 0;
 			if(px >= 213 && px <= 242) // backspace
 				return translateCode(K_B, SYMBOLS);
-			
+
 			px -= 23;
 			tilex = px / 19;
 			break;
@@ -570,7 +570,7 @@ char executeClick(int px, int py)
 				return 0;
 			if(px >= 203 && px <= 242) // return
 				return translateCode(K_R, SYMBOLS);
-			
+
 			px -= 13;
 			tilex = px / 19;
 			break;
@@ -583,7 +583,7 @@ char executeClick(int px, int py)
 				curChar = 0;
 				return 0;
 			}
-			
+
 			px -= 42;
 			tilex = px / 19;
 			break;
@@ -592,19 +592,19 @@ char executeClick(int px, int py)
 				return 0;
 			if(px >= 89 && px < 184) // space
 				return translateCode(K_W, SYMBOLS);
-			
+
 			px -= 13;
 			tilex = px / 19;
 			break;
 	}
-	
+
 	if(tilex < 0 || tilex > 11)
 		return 0;
-	
-	char c = 0; // capture character.				
-	
+
+	char c = 0; // capture character.
+
 	if(tiley == 0) // this is the numbers
-	{    
+	{
 		if(shift == 1)
 			c = translateCode(keyboard_Hit[tilex], SYMBOLS);
 		else
@@ -627,36 +627,36 @@ char executeClick(int px, int py)
 				c = translateCode(keyboard_Hit[tilex+(tiley*12)],SPECIAL1);
 		}
 	}
-	
+
 	if(c==DEL) // Return
 	{
 		// to ensure we dont lowercase on a delete
-	} 
+	}
 	else if(c == CAP)
 	{
 		toggleCaps();
 		curChar = 0;
 		c = 0;
-	} 
+	}
 	else if(c == SPL)
 	{
 		toggleSpecial();
 		curChar = 0;
-		c = 0;				
-	} 
+		c = 0;
+	}
 	else
 	{
 		shift = 0;
 	}
-	
+
 	return c;
 }
 
 int whichBlock(int px, int py)
-{	
+{
 	px -= 32;
 	py -= 37;
-	
+
 	if(py > 0 && py < 32) // first row
 	{
 		if(px > 32 && px < 64)
@@ -666,7 +666,7 @@ int whichBlock(int px, int py)
 		if(px > 96 && px < 128)
 			return 3;
 	}
-	
+
 	if(py > 32 && py < 63) // second row
 	{
 		if(px > 32 && px < 64)
@@ -676,7 +676,7 @@ int whichBlock(int px, int py)
 		if(px > 96 && px < 128)
 			return 6;
 	}
-	
+
 	if(py > 63 && py < 95) // third row
 	{
 		if(px > 32 && px < 64)
@@ -686,10 +686,10 @@ int whichBlock(int px, int py)
 		if(px > 96 && px < 128)
 			return 9;
 	}
-	
+
 	if(px >= 129 && py >= 64 && px <= 158 && py <= 94) // number toggle
 		return -1;
-	
+
 	return 0;
 }
 
@@ -697,7 +697,7 @@ void executeMove(int px, int py)
 {
 	if(px == 0 || py == 0)
 		return;
-	
+
 	upX = px;
 	upY = py;
 }
@@ -706,16 +706,16 @@ char executeUp()
 {
 	if(activeKeyboard() != KB_MESSAGEASE)
 		return 0;
-		
+
 	int startBlock = whichBlock(downX, downY);
-	int endBlock = whichBlock(upX, upY);	
+	int endBlock = whichBlock(upX, upY);
 	int switchNumber = (startBlock * 10) + endBlock;
-	
+
 	if(startBlock == 0 || endBlock == 0)
 		return 0;
-	
+
 	char *str = NULL;
-	
+
 	switch(activeView())
 	{
 		case ACTIVE_LOWERCASE:
@@ -734,9 +734,9 @@ char executeUp()
 			str = me_upperspecial;
 			break;
 	}
-	
+
 	char c = 0;
-	
+
 	if(startBlock == 9 && endBlock == -1)
 		c = str[42];
 	else
@@ -773,7 +773,7 @@ char executeUp()
 				case 99:
 					c = str[8];
 					break;
-				
+
 				// ok, time to look for the drags
 				case 12:
 					c = str[27];
@@ -874,19 +874,19 @@ char executeUp()
 			}
 		}
 	}
-	
+
 	if(c == 32)
 		c = 0;
-	
+
 	if(c != 0)
 		shift = 0;
-	
+
 	return c;
 }
 
 /* accepts three parameters
    tmpBuffer: the buffer to operate on
-   size: the number of characters that can be typed in a buffer (char array should be one larger 
+   size: the number of characters that can be typed in a buffer (char array should be one larger
 																 for null termination)
    c: character to add/subtract/etc
 */
@@ -916,18 +916,18 @@ void insertChar(char *tmpBuffer, int size, char c)
 	{
 		if((int)strlen(tmpBuffer) >= size)
 		{
-			return; 
-		}	
-		
+			return;
+		}
+
 		int z;
 		for(z=size;z > getKBCursor();z--)
 		{
-			tmpBuffer[z] = tmpBuffer[z-1];		
+			tmpBuffer[z] = tmpBuffer[z-1];
 		}
 	}
-	
+
 	tmpBuffer[getKBCursor()] = c;
-	
+
 	if(getKBCursor() < size)
 	{
 		moveKBCursorRelative(CURSOR_FORWARD);
@@ -937,11 +937,11 @@ void insertChar(char *tmpBuffer, int size, char c)
 void genericAction(char *tmpBuffer, int size, char c)
 {
 	if(isControl())
-	{	
+	{
 		toggleControl();
-		
+
 		setPressedChar(c);
-		
+
 		// control character
 		switch(c)
 		{
@@ -951,20 +951,20 @@ void genericAction(char *tmpBuffer, int size, char c)
 				{
 					return;
 				}
-				
+
 				if(beginHighlight > endHighlight)
 				{
 					quickSwap(&beginHighlight, &endHighlight);
 				}
-				
+
 				// perform cut
 				setClipboardRange(tmpBuffer, beginHighlight, endHighlight);
 				removeText(tmpBuffer, size);
 				moveKBCursorAbsolute(beginHighlight);
-				
+
 				// reset the edit mode
 				clearFakeHighlight();
-				select = 0; 
+				select = 0;
 				break;
 			case 'c':// copy
 				// make sure highlight bounds are correct
@@ -972,18 +972,18 @@ void genericAction(char *tmpBuffer, int size, char c)
 				{
 					return;
 				}
-				
+
 				if(beginHighlight > endHighlight)
 				{
 					quickSwap(&beginHighlight, &endHighlight);
 				}
-				
+
 				// perform copy
 				setClipboardRange(tmpBuffer, beginHighlight, endHighlight);
-				
+
 				// reset the edit mode
 				clearFakeHighlight();
-				select = 0; 
+				select = 0;
 				break;
 			case 'v':// paste
 				if(beginHighlight != -1 && endHighlight != -1)
@@ -992,36 +992,36 @@ void genericAction(char *tmpBuffer, int size, char c)
 					{
 						quickSwap(&beginHighlight, &endHighlight);
 					}
-					
+
 					// we need to overwrite, but first check to make sure we don't overdo it
 					if(strlen(tmpBuffer) - (endHighlight - beginHighlight) + strlen(getClipboard()) > size)
 					{
 						// after removing the current text and adding the new text, we are going over the size
 						return;
 					}
-					
+
 					// remove the current text
 					removeText(tmpBuffer, size);
 					moveKBCursorAbsolute(beginHighlight);
 					clearFakeHighlight();
-					select = 0; 
-					
+					select = 0;
+
 					// cursor is now where we want to add the new text
 					// we know also that there is enough room, so just insert the text
-					
+
 					// ensure we are inserting, even if overwrite
 					uint16 tInsert = insert;
 					insert = 1;
-					
+
 					char *tAdd = getClipboard();
-					
+
 					// loop and add chars
 					while(*tAdd != 0)
 					{
 						insertChar(tmpBuffer, size, *tAdd);
 						tAdd++;
 					}
-					
+
 					// reset insert
 					insert = tInsert;
 				}
@@ -1032,13 +1032,13 @@ void genericAction(char *tmpBuffer, int size, char c)
 						// after adding the new text, we are going over the size
 						return;
 					}
-					
+
 					clearFakeHighlight();
-					select = 0; 
-					
+					select = 0;
+
 					// add the text
 					char *tAdd = getClipboard();
-					
+
 					// loop and add chars
 					while(*tAdd != 0)
 					{
@@ -1046,7 +1046,7 @@ void genericAction(char *tmpBuffer, int size, char c)
 						tAdd++;
 					}
 				}
-				
+
 				break;
 		}
 	}
@@ -1060,72 +1060,72 @@ void genericAction(char *tmpBuffer, int size, char c)
 		{
 			moveKBCursorAbsolute(size - 1);
 		}
-		
+
 		if(beginHighlight != -1 && endHighlight != -1)
 		{
 			if(beginHighlight > endHighlight)
 			{
 				quickSwap(&beginHighlight, &endHighlight);
 			}
-			
+
 			// we have to clear out the data before performing the action
 			removeText(tmpBuffer, size);
-			
+
 			// move the cursor
 			moveKBCursorAbsolute(beginHighlight);
-			
+
 			// reset the edit mode
 			clearFakeHighlight();
-			select = 0; 
-			
+			select = 0;
+
 			if(c == BSP || c == DEL)
 			{
 				// we've done the work required, exit
-				
+
 				return;
 			}
 		}
-		
+
 		if(c == BSP)
 		{
 			// backspace
 			if(getKBCursor() == 0) // handle backspacing nothing
 			{
-				return; 
+				return;
 			}
-			
-			int z;
-			for(z=getKBCursor()-1;z<=size;z++)
-			{
-				tmpBuffer[z] = tmpBuffer[z+1];		
-			}
-			
-			moveKBCursorRelative(CURSOR_BACKWARD);
-		} 
-		else if(c == DEL)
-		{
-			// del
-			if(tmpBuffer[getKBCursor()] == 0) // handle deleting nothing
-			{
-				return; 
-			}
-			
-			moveKBCursorRelative(CURSOR_FORWARD);
-			
+
 			int z;
 			for(z=getKBCursor()-1;z<=size;z++)
 			{
 				tmpBuffer[z] = tmpBuffer[z+1];
 			}
-			
+
 			moveKBCursorRelative(CURSOR_BACKWARD);
-		} 
+		}
+		else if(c == DEL)
+		{
+			// del
+			if(tmpBuffer[getKBCursor()] == 0) // handle deleting nothing
+			{
+				return;
+			}
+
+			moveKBCursorRelative(CURSOR_FORWARD);
+
+			int z;
+			for(z=getKBCursor()-1;z<=size;z++)
+			{
+				tmpBuffer[z] = tmpBuffer[z+1];
+			}
+
+			moveKBCursorRelative(CURSOR_BACKWARD);
+		}
 		else
 		{
 			// normal add
-			insertChar(tmpBuffer, size, c);			
+			insertChar(tmpBuffer, size, c);
 		}
-		
+
 		tmpBuffer[size] = 0;
 	}
 }

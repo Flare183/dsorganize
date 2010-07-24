@@ -16,7 +16,7 @@
  *  along with DSOrganize.  If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <nds.h>
@@ -58,7 +58,7 @@ static bool hasTouched = false;
 
 // key inputs
 void touchDown(int px, int py)
-{	
+{
 	if(!hasTouched)
 	{
 		queueControls(px, py, CE_DOWN);
@@ -80,7 +80,7 @@ bool checkSleepState()
 	if(getLCDState() == LCD_OFF)
 	{
 		if(!(keysHeld() & KEY_LID))
-		{		
+		{
 			setLCDState(LCD_ON);
 			return true;
 		}
@@ -93,7 +93,7 @@ bool checkSleepState()
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -101,16 +101,16 @@ void checkKeys()
 {
 	// Only for inside sound loops
 	scanKeys();
-	
+
 	touchPosition touch = touchReadXYNew();
-	
+
 	if((keysHeld() & KEY_TOUCH) && hasTouched)
 	{
 		// Do the move event
 		queueControls(touch.px, touch.py, CE_MOVE);
 		return;
 	}
-	
+
 	queueHotKeys(keysDown(), keysHeld());
 }
 
@@ -124,19 +124,19 @@ void initProgram()
 	// start initializing crap
 	//------------------------
 	defaultExceptionHandler(); // set up the exception handler
-	
+
     powerON(POWER_ALL_2D); // turn on everything
-	
+
 	#ifndef DEBUG_MODE
 	fb_init(); // initialize top screen video
 	#else
 	debugInit();
 	#endif
 	bg_init(); // initialize bottom screen video
-	
+
 	setNewOrientation(ORIENTATION_0);
-	
-	// set up extra vram banks to be scratch memory	
+
+	// set up extra vram banks to be scratch memory
 	vramSetBankE(VRAM_E_LCD);
 	vramSetBankF(VRAM_F_LCD);
 	vramSetBankG(VRAM_G_LCD);
@@ -146,69 +146,70 @@ void initProgram()
 	fb_setBGColor(30653);
 	bg_setBGColor(0);
 	drawStartSplash();
-	
+
 	lcdMainOnTop(); // set fb to top screen
 	fb_swapBuffers();
 	bg_swapBuffers();
-	
+
 	// out of order for competition
 	irqInit(); // initialize irqs
-	
+
     irqSet(IRQ_VBLANK, startvBlank);
 	irqEnable(IRQ_VBLANK);
-	
+
 	setMode(INITFAT);
 	setSoundInterrupt(); // initialize fifo irq
-	
+
 	setGenericSound(11025, 127, 64, 1);
 	waitForInit(); // wait until arm7 has loaded and gone to sleep
 	initComplexSound(); // initialize sound variables
 	initWifi();
 	fixGautami();
-	
+
 	setCursorProperties(0, 2, 0, 0);
 	initCapture();
 	initClipboard();
-	
-	// set defaults to english in case we can't load the langauge file for some reason
-	// also takes care of partial translations.	
+
+	// set defaults to english in case we can't load the langauge file for
+	// some reason also takes care of partial translations.
 	initLanguage();
 	initRandomList();
 	fixAndTags();
-	
+
 	resetKeyboard();
 	setDate();
-	
+
 	if(!DRAGON_InitFiles())
 	{
 		// oops, no cf card!
 		setMode(DISPLAYCOW);
-		
+
 		setFont(font_arial_11);
 		setColor(0xFFFF);
-		
+
 		bg_dispSprite(96, 5, errmsg, 0);
 		bg_setClipping(5,25,250,181);
 		bg_dispString(0,0,l_nofat);
 		bg_swapBuffers();
-		
+
 		while(1)
 		{
 			// wee, la la la!
+		  // More or less, we aren't going to do nothing here
 		}
 	}
-	
+
 	//--------------------------------------------------------------------
 	//finished init, now check to make sure the DSOrganize dir is there...
 	//--------------------------------------------------------------------
-	
+
 	findDataDirectory();
 	makeDirectories();
-	
+
 	if(DRAGON_FileExists("DSOrganize") != FE_DIR)
 	{
 		setMode(DISPLAYCOW);
-		
+
 		// oops, not there, we must create!
 		DRAGON_mkdir("DSOrganize");
 		DRAGON_chdir("DSOrganize");
@@ -225,32 +226,32 @@ void initProgram()
 		DRAGON_mkdir("COOKIES");
 		DRAGON_mkdir("HOME");
 		DRAGON_chdir("/");
-		
+
 		makeDefaultSettings();
-		
+
 		setFont(font_arial_11);
 		setColor(0xFFFF);
-		
+
 		bg_dispSprite(96, 5, errmsg, 0);
 		bg_setClipping(5,25,250,181);
 		bg_dispString(0,0, l_createdir);
 		bg_swapBuffers();
-		
+
 		while(!keysDown())
 		{
-			scanKeys();	
+			scanKeys();
 		}
 	}
-	
+
 	setMode(INITPLUGIN);
-	
+
 	//-------------------------------------------------------------------
 	//finished creating dirs, now check to make sure if they extracted it
 	//did their extracting program actually get all the dirs?
-	//-------------------------------------------------------------------	
-	
+	//-------------------------------------------------------------------
+
 	DRAGON_chdir(d_base);
-	
+
 	if(DRAGON_FileExists("Day") != FE_DIR)
 	{
 		DRAGON_mkdir("DAY");
@@ -295,29 +296,29 @@ void initProgram()
 	{
 		DRAGON_mkdir("HOME");
 	}
-	
+
 	DRAGON_chdir("/");
-	
+
 	//-------------------------------------------
 	//how about we load the settings for them eh?
 	//-------------------------------------------
 	loadSettings();
-	
+
 	DRAGON_chdir(d_base);
-	
+
 	if(DRAGON_FileExists("startup.wav") == FE_FILE)
 	{
 		char tStr[256];
-		
+
 		sprintf(tStr, "%sstartup.wav", d_base);
 		loadWavToMemory();
 		loadSound(tStr);
 	}
-	
+
 	DRAGON_chdir("/");
 	initStartScreen();
-	
-    irqSet(IRQ_VBLANK, vBlank);	
+
+    irqSet(IRQ_VBLANK, vBlank);
 	fb_setBGColor(genericFillColor);
 	bg_setBGColor(genericFillColor);
 }
@@ -332,60 +333,60 @@ void hblank_handler(void)
 #endif
 
 int main()
-{	
+{
 	initProgram();
-	
+
 	#ifdef PROFILING
 	int counter = 0;
-	
+
 	irqSet(IRQ_HBLANK, hblank_handler);
 	irqEnable(IRQ_HBLANK);
-	
+
 	cygprofile_begin();
 	cygprofile_enable();
 	#endif
-	
-	while(1) 
+
+	while(1)
 	{
 		updateStreamLoop();
 		if(!checkHelp())
-		{	
+		{
 			if(getLCDState() == LCD_ON)
 			{
 				updateStreamLoop();
 				clearHelpScreen();
 			}
-			
+
 			updateStreamLoop();
 			drawControls(getLCDState() != LCD_ON);
-			
+
 			updateStreamLoop();
-			checkKeys();			
+			checkKeys();
 			executeQueuedControls();
-			
+
 			// Split here because the state can change in checkKeys
 			if(getLCDState() == LCD_ON)
 			{
 				#ifdef SCREENSHOT_MODE
-				takeScreenshot();			
+				takeScreenshot();
 				#endif
-				
+
 				updateStreamLoop();
 				drawToScreen();
 			}
 			else
-			{	
+			{
 				updateStreamLoop();
 				checkEndSound();
 			}
-			
+
 			updateStreamLoop();
 			checkSleepState();
 		}
-		
+
 		#ifdef PROFILING
 		counter++;
-		
+
 		if(counter == 700)
 		{
 			cygprofile_disable();

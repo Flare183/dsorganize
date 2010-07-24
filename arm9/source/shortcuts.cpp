@@ -16,7 +16,7 @@
  *  along with DSOrganize.  If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <nds.h>
 #include <stdio.h>
 #include <string.h>
@@ -102,32 +102,32 @@ static unsigned long  crctable[256] = {
 bool loadShortcut(char *filename, SHORTCUT *sc)
 {
 	memset(sc, 0, sizeof(SHORTCUT));
-	
+
 	if(!DRAGON_FileExists(filename))
 		return false;
-	
+
 	strcpy(sc->location, filename);
-	
+
 	char *str = (char *)safeMalloc(MAX_SHORTCUT_SIZE + 1);
 	DRAGON_FILE *fp = DRAGON_fopen(filename, "r");
 	DRAGON_fgets(str, MAX_SHORTCUT_SIZE, fp);
 	strlwr(str);
-	
+
 	if(strcmp(str, "dsoshortcut") != 0)
 	{
 		DRAGON_fclose(fp);
 		safeFree(str);
 		return false;
 	}
-	
+
 	char *tStr = (char *)safeMalloc(MAX_SHORTCUT_SIZE + 1);
-	
+
 	while(!DRAGON_feof(fp))
 	{
 		DRAGON_fgets(str, MAX_SHORTCUT_SIZE, fp);
 		memcpy(tStr, str, MAX_SHORTCUT_SIZE);
 		strlwr(tStr);
-		
+
 		if(strncmp(tStr,"name=", 5) == 0)
 		{
 			char *strPtr = str + 5;
@@ -138,7 +138,7 @@ bool loadShortcut(char *filename, SHORTCUT *sc)
 			char *strPtr = str + 5;
 			strncpy(sc->path, strPtr, 255);
 		}
-		else if(strncmp(tStr, "largeicon=", 10) == 0)		
+		else if(strncmp(tStr, "largeicon=", 10) == 0)
 		{
 			char *strPtr = str + 10;
 			strncpy(sc->largeiconpath, strPtr, 255);
@@ -146,7 +146,7 @@ bool loadShortcut(char *filename, SHORTCUT *sc)
 		else if(strncmp(tStr, "alternate", 9) == 0)
 			sc->alternateBoot = true;
 	}
-	
+
 	DRAGON_fclose(fp);
 	safeFree(tStr);
 	safeFree(str);
@@ -154,30 +154,30 @@ bool loadShortcut(char *filename, SHORTCUT *sc)
 }
 
 void launchShortcut(SHORTCUT *sc)
-{	
+{
 	if(!sc)
 		return;
-	
+
 	DRAGON_chdir("/");
 	if(DRAGON_FileExists(sc->path) == FE_NONE)
 		return;
-	
+
 	int x = 0;
 	int pos = 0;
 	while(sc->path[x] != 0)
 	{
 		if(sc->path[x] == '/')
 			pos = x;
-		
+
 		x++;
 	}
-	
+
 	char sFindFile[256];
-	
+
 	if(pos == 0)
 	{
 		browserChangeDir("/");
-		
+
 		if(sc->path[0] == '/')
 			strcpy(sFindFile, sc->path+1);
 		else
@@ -187,30 +187,30 @@ void launchShortcut(SHORTCUT *sc)
 	{
 		char tDir[256];
 		strcpy(tDir, sc->path);
-		
+
 		tDir[pos] = 0;
 		browserChangeDir(tDir);
-		
-		strcpy(sFindFile, sc->path + (pos + 1));		
+
+		strcpy(sFindFile, sc->path + (pos + 1));
 	}
-	
+
 	if(!setBrowserCursor(sFindFile))
 		return;
-	
+
 	if(!sc->alternateBoot) // normal boot
 		loadFile(getCursor());
 	else // alternate boot
-		alternateLoadFile(getCursor());	
+		alternateLoadFile(getCursor());
 }
 
 unsigned long CalcCRC32(char *p)
 {
 	if(!p)
 		return 0;
-	
+
 	unsigned long j;
 	unsigned long reclen = (unsigned long)strlen(p);
-	
+
 	/* initialize value */
 	unsigned long crc = CRC32_XINIT;
 
@@ -218,7 +218,7 @@ unsigned long CalcCRC32(char *p)
 	for (j = 1; j < reclen; j++) {
 		crc = crctable[(crc ^ *p++) & 0xFFL] ^ (crc >> 8);
 	}
-	
+
 	/* return XOR out value */
 	return crc ^ CRC32_XOROT;
 }
@@ -231,25 +231,25 @@ void createDefaultIcon(SHORTCUT *sc)
 	char *tFile = tStr;
 	BROWSER_FILE bFile;
 	FILE_INFO fInfo;
-	
+
 	strcpy(tStr, sc->location);
-	
+
 	while(tStr[x] != 0)
 	{
 		if(tStr[x] == '/')
 			y = x;
-		
+
 		x++;
 	}
-	
+
 	tStr[y] = 0;
 	tFile = tStr + y + 1;
-	
+
 	strcpy(bFile.longName, tFile);
 	bFile.fileType = SHORTCUTFILE;
-	
+
 	getInfo(&bFile, tStr, &fInfo);
-	
+
 	sc->loadedIcon = (uint16 *)trackMalloc(1026*2, "default icon");
 	memcpy(sc->loadedIcon, fInfo.iconData, 1026*2);
 }
@@ -263,53 +263,53 @@ void loadShortcutIcon(SHORTCUT *sc)
 		createDefaultIcon(sc);
 		return;
 	}
-	
+
 	DRAGON_chdir("/");
-	
+
 	u32 fileCRC = CalcCRC32(sc->largeiconpath);
 	char crcFile[256];
-	
+
 	sprintf(crcFile, "%s%08X.ico", d_icons, fileCRC);
-	
+
 	if(DRAGON_FileExists(crcFile) == FE_FILE) // theres already a cached icon
 	{
 		u32 tFile;
 		DRAGON_FILE *fp = DRAGON_fopen(crcFile, "r");
-		
+
 		tFile = DRAGON_flength(fp);
-		sc->loadedIcon = (uint16 *)trackMalloc(tFile , "cached icon");		
+		sc->loadedIcon = (uint16 *)trackMalloc(tFile , "cached icon");
 		DRAGON_fread(sc->loadedIcon, 1, tFile, fp);
 		DRAGON_fclose(fp);
-		
+
 		return;
-	}	
-	
+	}
+
 	if(DRAGON_FileExists(sc->largeiconpath) != FE_FILE) // no cache, file doesn't exist
 	{
 		createDefaultIcon(sc);
 		return;
 	}
-	
+
 	int x, y;
-	
+
 	getPictureSize(sc->largeiconpath, x, y);
-	
+
 	if(x != 50 || y != 50) // file is not 50x50
 	{
 		createDefaultIcon(sc);
 		return;
 	}
-	
+
 	PICTURE_DATA tPicture;
 	memset(&tPicture, 0, sizeof(PICTURE_DATA));
 	sc->loadedIcon = (uint16 *)trackMalloc(4 + ((50*50)*2), "loaded icon");
-	
+
 	setBGColor(genericFillColor, &tPicture);
 	setLargeDimensions(256,192); // normal thumbnail
 	loadImage(sc->largeiconpath, &tPicture, 99, 99);
 	memcpy(sc->loadedIcon, tPicture.picData, 4 + ((50*50)*2));
 	freeImage(&tPicture);
-	
+
 	DRAGON_FILE *fp = DRAGON_fopen(crcFile, "w");
 	DRAGON_fwrite(sc->loadedIcon, 1, 4 + ((50*50)*2), fp);
 	DRAGON_fclose(fp);
@@ -319,7 +319,6 @@ void freeShortcutIcon(SHORTCUT *sc)
 {
 	if(sc->loadedIcon)
 		trackFree(sc->loadedIcon);
-	
+
 	sc->loadedIcon = NULL;
 }
-

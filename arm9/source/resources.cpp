@@ -16,7 +16,7 @@
  *  along with DSOrganize.  If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <nds.h>
 #include "resources.h"
 

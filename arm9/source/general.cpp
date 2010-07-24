@@ -444,40 +444,40 @@ void launchNDSMethod1(char *file)
 }
 
 void launchNDSMethod2(char *file)
-{	
+{
 	vramSetBankD(VRAM_D_LCD);
 	REG_IE = 0;
 	REG_IME = 0;
 	REG_IF = 0xFFFF;	// Acknowledge interrupt
-	
+
 	// get cluster
-	
+
 	u32 fCluster;
-	
+
 	DRAGON_FILE *fFile = DRAGON_fopen(file, "r");
 	fCluster = fFile->firstCluster;
 	DRAGON_fclose(fFile);
-	
+
 	// get loader
-	
+
 	DRAGON_chdir("/");
 	char cCommand[256];
 	sprintf(cCommand, "%sload.bin", d_res);
 	DRAGON_FILE *stub = DRAGON_fopen(cCommand,"r");
 	u32 tLen = DRAGON_flength(stub);
-	
+
 	char *buffer = (char *)safeMalloc(tLen);
-	
+
 	DRAGON_fread(buffer,tLen,1,stub);
 	DRAGON_fclose(stub);
-	
+
 	fb_setClipping(5,5,250,187);
-	
-	setColor(genericTextColor);			
+
+	setColor(genericTextColor);
 	setFont(font_arial_11);
 	fb_dispString(0,0, l_launchingchishm);
 	fb_swapBuffers();
-	
+
 	runNds(buffer, tLen, fCluster, false);
 
 	while(1);
@@ -487,7 +487,7 @@ void launchNDS(char *file)
 {
 	if(!disablePatching)
 		patchFile(file);
-	
+
 	switch(normalBoot)
 	{
 		case BOOT_MIGHTYMAX:
@@ -1348,6 +1348,7 @@ void takeScreenshot()
 		if(screensFlipped() || configFlipped())
 		{
 			memcpy((uint16 *)ssPicture.rawData, fb_backBuffer(), 256*192*2);
+
 			memcpy((uint16 *)ssPicture.rawData + 256*192, bg_backBuffer(), 256*192*2);
 		}
 		else
