@@ -1,4 +1,4 @@
 * README for DSOrganize
 ** DSOrganize is originally written by DragonMinded
 *** Edited by Jesse N. Richardson (Flare183)
-**** See the HISTORY.org file for the revision history from Dragon's Site
+**** See the CHANGELOG.org file for the revision history from Dragon's Site
