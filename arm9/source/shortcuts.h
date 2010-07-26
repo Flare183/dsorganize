@@ -39,11 +39,11 @@ typedef struct
 	bool alternateBoot;
 } SHORTCUT;
 
-bool loadShortcut(char *filename, SHORTCUT *sc);
-void loadShortcutIcon(SHORTCUT *sc);
-void launchShortcut(SHORTCUT *sc);
-void loadShortcutIcon(SHORTCUT *sc);
-void freeShortcutIcon(SHORTCUT *sc);
+bool loadShortcut(char *filename, SHORTCUT *dsc);
+void loadShortcutIcon(SHORTCUT *dsc);
+void launchShortcut(SHORTCUT *dsc);
+void loadShortcutIcon(SHORTCUT *dsc);
+void freeShortcutIcon(SHORTCUT *dsc);
 
 unsigned long CalcCRC32(char *p);
 

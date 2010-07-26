@@ -16,7 +16,7 @@
  *  along with DSOrganize.  If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <string.h>
 #include <nds.h>
 #include <stdio.h>
@@ -201,7 +201,7 @@ char *getDownloadDir()
 
 int getMode()
 {
-	return mode;	
+	return mode;
 }
 
 void setMode(int newMode)
@@ -332,18 +332,18 @@ void setLocations(char *str)
 {
 	int x = 0;
 	int item = 0;
-	
+
 	char tmpStr[20];
 	memset(tmpStr, 0, 20);
-	
+
 	while(str[x] != 0)
 	{
 		if(str[x] == ',')
 		{
 			// check here for what item to set for
-			
+
 			strlwr(tmpStr);
-			
+
 			if(strcmp(tmpStr,"calendar") == 0)
 				locations[item] = 0; //CALENDAR
 			if(strcmp(tmpStr,"dayview") == 0)
@@ -364,13 +364,13 @@ void setLocations(char *str)
 				locations[item] = 8; //WEBBROWSER;
 			if(strcmp(tmpStr,"hbdb") == 0)
 				locations[item] = 9; //HBDB;
-			
+
 			memset(tmpStr, 0, 20);
 			item++;
 		}
 		else
 			tmpStr[strlen(tmpStr)] = str[x];
-		
+
 		x++;
 	}
 }
@@ -379,35 +379,35 @@ void loadExternalDLDI()
 {
 	char tmpFile[256];
 	int fType;
-	
+
 	memset(dldiFile, 0, 256);
-	
+
 	DRAGON_chdir(d_res);
 	fType = DRAGON_FindFirstFile(tmpFile);
-	
+
 	while(fType != FE_NONE)
 	{
 		if(fType == FE_FILE)
 		{
 			char ext[256];
-			
+
 			separateExtension(tmpFile, ext);
 			strlwr(ext);
-			
+
 			if(strcmp(ext, ".dldi") == 0)
 			{
 				// dldi file
-				
+
 				strcpy(dldiFile, tmpFile);
 				strcat(dldiFile, ext);
-				
+
 				break;
 			}
 		}
-		
-		fType = DRAGON_FindNextFile(tmpFile);		
+
+		fType = DRAGON_FindNextFile(tmpFile);
 	}
-	
+
 	DRAGON_closeFind();
 	DRAGON_chdir("/");
 }
@@ -415,31 +415,31 @@ void loadExternalDLDI()
 void loadSettings()
 {
 	char sStr[256];
-	
+
 	defaultLocations();
-	
-	sprintf(sStr, "%sconfig.ini", d_base);	
-	
+
+	sprintf(sStr, "%sconfig.ini", d_base);
+
 	if(DRAGON_FileExists(sStr) != FE_FILE)
 		makeDefaultSettings();
-		
+
 	setIniFile(sStr);
-	
+
 	if(getSetting("HomeScreen", "Order", sStr))
 	{
 		strcat(sStr,",");
 		setLocations(sStr);
 	}
-	
+
 	if(getSetting("HomeScreen", "IconSet", sStr))
 		strcpy(cIconSet, sStr);
 	else
 		strcpy(cIconSet, "Default");
-	
+
 	if(getSetting("Regional", "Language", sStr))
 	{
 		strlwr(sStr);
-		
+
 		strcpy(lLanguage, sStr);
 		loadLanguage(sStr);
 	}
@@ -448,11 +448,11 @@ void loadSettings()
 		strcpy(lLanguage, "english");
 		loadLanguage(lLanguage);
 	}
-	
+
 	if(getSetting("General", "HTMLStyle", sStr))
 	{
 		htmlStyle = sStr[0] - '0';
-		
+
 		if(htmlStyle > 2)
 			htmlStyle = 2;
 	}
@@ -460,10 +460,10 @@ void loadSettings()
 	{
 		htmlStyle = 2;
 	}
-	
+
 	milTime = getBoolSetting("Regional", "Display24h");
 	firstLast = getBoolSetting("Regional", "DisplayFirstLast");
-	reverseDate = getBoolSetting("Regional", "ReverseDate");	
+	reverseDate = getBoolSetting("Regional", "ReverseDate");
 	secondClickOpens = getBoolSetting("General", "SecondClickAction");
 	swapAB = getBoolSetting("General", "swapAB");
 	disableWrites = getBoolSetting("General", "DisableWrites");
@@ -471,81 +471,81 @@ void loadSettings()
 	autoBullet = getBoolSetting("Todo", "AutoBullet");
 	showHidden = getBoolSetting("Browser", "ShowHidden");
 	disablePatching = getBoolSetting("Browser", "DisablePatching");
-	
+
 	normalBoot = BOOT_CHISHM;
 	altBoot = BOOT_MIGHTYMAX;
 
 	if(getSetting("General", "NormalLoader", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "mightymax") == 0)
 			normalBoot = BOOT_MIGHTYMAX;
 		if(strcmp(sStr, "chishm") == 0)
 			normalBoot = BOOT_CHISHM;
-	}	
-	
+	}
+
 	if(getSetting("General", "AlternateLoader", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "mightymax") == 0)
 			altBoot = BOOT_MIGHTYMAX;
 		if(strcmp(sStr, "chishm") == 0)
 			altBoot = BOOT_CHISHM;
 	}
-	
+
 	wifiMode = WIFI_FIRMWARE;
-	
+
 	if(getSetting("General", "WifiMethod", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "firmware") == 0)
 			wifiMode = WIFI_FIRMWARE;
 		if(strcmp(sStr, "dsorganize") == 0)
 			wifiMode = WIFI_DSORGANIZE;
-	}	
-	
+	}
+
 	if(getSetting("General", "Hand", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "left") == 0)
 			setHand(HAND_LEFT);
 		if(strcmp(sStr, "right") == 0)
 			setHand(HAND_RIGHT);
 	}
-	
+
 	saveFormat = SAVE_BMP;
 	if(getSetting("ScribblePad", "SaveFormat", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr,"png") == 0)
-			saveFormat = SAVE_PNG;	
+			saveFormat = SAVE_PNG;
 		if(strcmp(sStr,"bmp") == 0)
 			saveFormat = SAVE_BMP;
 	}
-	
+
 	if(getSetting("ScribblePad", "CustomColors", sStr))
 	{
 		bool doneLoading = false;
 		char strColor[64];
 		char *tStr = sStr;
 		int curLoc = 18;
-		
+
 		memset(strColor, 0, 64);
-		
+
 		while(!doneLoading && curLoc < 27)
 		{
 			if(*tStr == 0 || *tStr == ',')
 			{
 				getCustomColors()[curLoc] = getNumber(strColor);
 				memset(strColor, 0, 64);
-				
+
 				curLoc++;
-				
+
 				if(*tStr == 0)
 					doneLoading = true;
 			}
@@ -553,11 +553,11 @@ void loadSettings()
 			{
 				strColor[strlen(strColor)] = *tStr;
 			}
-			
+
 			tStr++;
 		}
 	}
-	
+
 	if(getSetting("Database", "DefaultPath", defaultSavePath))
 	{
 		if(strlen(defaultSavePath) == 0)
@@ -571,7 +571,7 @@ void loadSettings()
 	}
 	else
 		strcpy(defaultSavePath, "/");
-	
+
 	if(getSetting("Database", "Proxy", proxy))
 	{
 		if(strlen(proxy) == 0)
@@ -584,40 +584,40 @@ void loadSettings()
 		setProxy(false, NULL);
 		strcpy(proxy, "");
 	}
-	
+
 	if(!getSetting("IRC", "Nick", nickName))
 		strcpy(nickName,"");
 	if(!getSetting("IRC", "AltNick", altnickName))
 		strcpy(altnickName,"");
-	
+
 	if(!getSetting("IRC", "Server", ircServer))
 		strcpy(ircServer,"irc.rizon.net:6667");
-	
+
 	autoConnect = getBoolSetting("IRC", "AutoConnect");
-	
+
 	if(getSetting("IRC", "Font", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "fixed") == 0)
 			ircFixedWidth = true;
 		if(strcmp(sStr, "variable") == 0)
 			ircFixedWidth = false;
 	}
-	
+
 	if(getSetting("Editor", "Font", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "fixed") == 0)
 			textFixedWidth = true;
 		if(strcmp(sStr, "variable") == 0)
 			textFixedWidth = false;
 	}
-	
+
 	if(!getSetting("WebBrowser", "Homepage", homePage))
 		strcpy(homePage,"about:blank");
-	
+
 	if(getSetting("WebBrowser", "DownloadPath", downloadLocation))
 	{
 		if(strlen(downloadLocation) == 0)
@@ -631,23 +631,23 @@ void loadSettings()
 	}
 	else
 		strcpy(downloadLocation, "/");
-	
+
 	imageLandscape = true;
 	if(getSetting("ImageViewer", "Orientation", sStr))
 	{
-		strlwr(sStr);	
-		
+		strlwr(sStr);
+
 		if(strcmp(sStr, "letter") == 0)
 			imageLandscape = false;
 	}
-	
+
 	autoHide = getBoolSetting("WebBrowser", "AutoHide");
-	
-	// grab the startup screen	
+
+	// grab the startup screen
 	if(getSetting("Startup", "DefaultScreen", sStr))
 	{
 		strlwr(sStr);
-		
+
 		if(strcmp(sStr,"calendar") == 0)
 			startMode = CALENDAR;
 		else if(strcmp(sStr,"dayview") == 0)
@@ -669,7 +669,7 @@ void loadSettings()
 		else
 			startMode = HOME;
 	}
-	
+
 	// load the rest of the settings
 	loadColors();
 	loadIconSet();
@@ -677,7 +677,7 @@ void loadSettings()
 	loadSoundMode();
 	loadExternalDLDI();
 	loadWifi();
-	
+
 	if(disableWrites)
 	{
 		FAT_DisableWriting();
@@ -724,32 +724,32 @@ void initStartScreen()
 void loadWifi()
 {
 	DRAGON_chdir("/");
-	
+
 	char sStr[256];
 	sprintf(sStr, "%swifi.dat", d_base);
-	
+
 	dsoProfiles = (WIFI_PROFILE *)safeMalloc(3 * sizeof(WIFI_PROFILE));
-	
+
 	if(DRAGON_FileExists(sStr) != FE_FILE)
 	{
 		memset(dsoProfiles, 0, sizeof(WIFI_PROFILE) * 3);
 		return;
 	}
-	
+
 	DRAGON_FILE *df = DRAGON_fopen(sStr, "r");
 	DRAGON_fread(dsoProfiles, 1, sizeof(WIFI_PROFILE) * 3, df);
 	DRAGON_fclose(df);
-	
+
 	cloneIfNeeded(dsoProfiles);
 }
 
 void saveWifi()
 {
 	DRAGON_chdir("/");
-	
+
 	char sStr[256];
-	sprintf(sStr, "%swifi.dat", d_base);	
-	
+	sprintf(sStr, "%swifi.dat", d_base);
+
 	DRAGON_FILE *df = DRAGON_fopen(sStr, "w");
 	DRAGON_fwrite(dsoProfiles, 1, sizeof(WIFI_PROFILE) * 3, df);
 	DRAGON_fclose(df);
@@ -761,10 +761,10 @@ WIFI_PROFILE *readWifi()
 }
 
 void makeDefaultSettings()
-{	
+{
 	DRAGON_chdir(d_base);
 	DRAGON_FILE *fFile = DRAGON_fopen("config.ini", "w");
-	
+
 	DRAGON_fputs("; Edit this as you please to customize DSOrganize", fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
@@ -1066,17 +1066,17 @@ void makeDefaultSettings()
 	DRAGON_fputs("Font=variable", fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
-	
+
 	DRAGON_fclose(fFile);
-	
-	fFile = DRAGON_fopen("autoperform.txt", "w");	
-	
+
+	fFile = DRAGON_fopen("autoperform.txt", "w");
+
 	DRAGON_fputs("/j #dsorganize", fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
-	
+
 	DRAGON_fclose(fFile);
-	
+
 	strcpy(lLanguage, "english");
 	loadLanguage(lLanguage);
 }
@@ -1086,10 +1086,10 @@ void saveSettings()
 	int x = strlen(defaultSavePath)-1;
 	if(defaultSavePath[x] != '/')
 		strcat(defaultSavePath, "/");
-	
+
 	DRAGON_chdir(d_base);
 	DRAGON_FILE *fFile = DRAGON_fopen("config.ini", "w");
-	
+
 	DRAGON_fputs("; Edit this as you please to customize DSOrganize", fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
@@ -1112,7 +1112,7 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("DefaultScreen=", fFile);
-	
+
 	switch(startMode)
 	{
 		case HOME:
@@ -1146,7 +1146,7 @@ void saveSettings()
 			DRAGON_fputs("webbrowser", fFile);
 			break;
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1163,9 +1163,9 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Language=", fFile);
-	
+
 	DRAGON_fputs(lLanguage, fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1174,12 +1174,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Display24h=", fFile);
-	
+
 	if(milTime)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);		
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1191,12 +1191,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("DisplayFirstLast=", fFile);
-	
+
 	if(firstLast)
 		DRAGON_fputs("true", fFile);
 	else
 		DRAGON_fputs("false", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1205,12 +1205,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("ReverseDate=", fFile);
-	
+
 	if(reverseDate)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1224,12 +1224,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("ShowHidden=", fFile);
-	
+
 	if(showHidden)
 		DRAGON_fputs("true", fFile);
 	else
 		DRAGON_fputs("false", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1238,12 +1238,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("DisablePatching=", fFile);
-	
+
 	if(disablePatching)
 		DRAGON_fputs("true", fFile);
 	else
 		DRAGON_fputs("false", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1260,7 +1260,7 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("SaveFormat=", fFile);
-	
+
 	switch(saveFormat)
 	{
 		case SAVE_PNG:
@@ -1270,7 +1270,7 @@ void saveSettings()
 			DRAGON_fputs("bmp", fFile);
 			break;
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1279,20 +1279,20 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("CustomColors=", fFile);
-	
-	int i;	
+
+	int i;
 	for(i=18;i<27;i++)
 	{
 		if(i > 18)
 			DRAGON_fputc(',', fFile);
-		
+
 		char strColor[64];
-		
+
 		sprintf(strColor, "%d", getCustomColors()[i]);
-		
+
 		DRAGON_fputs(strColor, fFile);
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1306,16 +1306,16 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("AutoBullet=", fFile);
-	
+
 	if(autoBullet)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
-	DRAGON_fputc(0x0A, fFile);	
+	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("[HomeScreen]", fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
@@ -1325,8 +1325,8 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Order=", fFile);
-	
-	// change this later for more items	
+
+	// change this later for more items
 	for(x=0;x<10;x++)
 	{
 		switch(locations[x])
@@ -1358,15 +1358,15 @@ void saveSettings()
 			case 8:
 				DRAGON_fputs("webbrowser", fFile);
 				break;
-			case 9:				
+			case 9:
 				DRAGON_fputs("hbdb", fFile);
 				break;
 		}
-		
+
 		if(x < 9) // always one less than the loop
 			DRAGON_fputc(',', fFile);
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1375,12 +1375,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("IconSet=", fFile);
-	
+
 	if(strlen(cIconSet) == 0)
 		DRAGON_fputs("Default", fFile);
 	else
 		DRAGON_fputs(cIconSet, fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1394,12 +1394,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("SecondClickAction=", fFile);
-	
+
 	if(secondClickOpens)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1408,9 +1408,9 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("HTMLStyle=", fFile);
-	
+
 	DRAGON_fputc('0' + htmlStyle, fFile);
-		
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1419,12 +1419,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("swapAB=", fFile);
-	
+
 	if(swapAB)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1436,7 +1436,7 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("NormalLoader=", fFile);
-	
+
 	switch(normalBoot)
 	{
 		case BOOT_MIGHTYMAX:
@@ -1446,11 +1446,11 @@ void saveSettings()
 			DRAGON_fputs("chishm", fFile);
 			break;
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("AlternateLoader=", fFile);
-	
+
 	switch(altBoot)
 	{
 		case BOOT_MIGHTYMAX:
@@ -1460,7 +1460,7 @@ void saveSettings()
 			DRAGON_fputs("chishm", fFile);
 			break;
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1469,12 +1469,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("DisableWrites=", fFile);
-	
+
 	if(disableWrites)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1483,12 +1483,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Hand=", fFile);
-	
+
 	if(getHand() == HAND_RIGHT)
 		DRAGON_fputs("right", fFile);
 	else
 		DRAGON_fputs("left", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1497,28 +1497,28 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("WifiMethod=", fFile);
-	
+
 	if(wifiMode == WIFI_FIRMWARE)
 		DRAGON_fputs("firmware", fFile);
 	else
 		DRAGON_fputs("dsorganize", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
-	DRAGON_fputc(0x0A, fFile);	
+	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("; This enables or disables the click noise on the keyboard.", fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("KeyboardNoise=", fFile);
-	
+
 	if(keyClick)
 		DRAGON_fputs("true", fFile);
 	else
 		DRAGON_fputs("false", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
-	DRAGON_fputc(0x0A, fFile);	
+	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("[Database]", fFile);
@@ -1530,12 +1530,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("DefaultPath=", fFile);
-	
+
 	DRAGON_fputs(defaultSavePath, fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
-	
+
 	if(strlen(proxy) == 0)
 		DRAGON_fputs(";Proxy=127.0.0.1:8080", fFile);
 	else
@@ -1543,7 +1543,7 @@ void saveSettings()
 		DRAGON_fputs("Proxy=", fFile);
 		DRAGON_fputs(proxy, fFile);
 	}
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1557,41 +1557,41 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Nick=", fFile);
-	
-	DRAGON_fputs(nickName, fFile);	
-	
+
+	DRAGON_fputs(nickName, fFile);
+
 	DRAGON_fputc(0x0D, fFile);
-	DRAGON_fputc(0x0A, fFile);	
+	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("AltNick=", fFile);
-	
-	DRAGON_fputs(altnickName, fFile);	
-	
+
+	DRAGON_fputs(altnickName, fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Server=", fFile);
-	
-	DRAGON_fputs(ircServer, fFile);	
-	
+
+	DRAGON_fputs(ircServer, fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("AutoConnect=", fFile);
-	
+
 	if(autoConnect)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-		
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Font=", fFile);
-	
+
 	if(ircFixedWidth)
 		DRAGON_fputs("fixed", fFile);
 	else
-		DRAGON_fputs("variable", fFile);	
-	
+		DRAGON_fputs("variable", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1605,9 +1605,9 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Homepage=", fFile);
-	
+
 	DRAGON_fputs(homePage, fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1616,9 +1616,9 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("DownloadPath=", fFile);
-	
+
 	DRAGON_fputs(downloadLocation, fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1627,12 +1627,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("AutoHide=", fFile);
-	
+
 	if(autoHide)
 		DRAGON_fputs("true", fFile);
 	else
-		DRAGON_fputs("false", fFile);	
-	
+		DRAGON_fputs("false", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1646,12 +1646,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Orientation=", fFile);
-	
+
 	if(imageLandscape)
 		DRAGON_fputs("landscape", fFile);
 	else
 		DRAGON_fputs("letter", fFile);
-	
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputc(0x0D, fFile);
@@ -1662,12 +1662,12 @@ void saveSettings()
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 	DRAGON_fputs("Font=", fFile);
-	
+
 	if(textFixedWidth)
 		DRAGON_fputs("fixed", fFile);
 	else
-		DRAGON_fputs("variable", fFile);	
-	
+		DRAGON_fputs("variable", fFile);
+
 	DRAGON_fputc(0x0D, fFile);
 	DRAGON_fputc(0x0A, fFile);
 
@@ -1679,22 +1679,22 @@ void loadColors()
 	char sStr[256];
 	uint16 tColor = 0;
 	int tValue = -1;
-	
+
 	// try colors.ini inside iconset first
 	DRAGON_chdir("/");
 	sprintf(sStr, "%s%s/colors.ini", d_icons, cIconSet);
-	
+
 	if(DRAGON_FileExists(sStr) != FE_FILE)
 	{
 		sprintf(sStr, "%scolors.ini", d_base);
 		if(DRAGON_FileExists(sStr) != FE_FILE)
-		{	
+		{
 			return;
 		}
 	}
-	
+
 	setIniFile(sStr);
-	
+
 	// general
 	tColor = getColorSetting("Generic", "Highlight");
 	if(tColor)
@@ -1708,7 +1708,7 @@ void loadColors()
 	tColor = getColorSetting("Generic", "Progress");
 	if(tColor)
 		genericProgressColor = tColor;
-	
+
 	// widgets
 	tColor = getColorSetting("Widget", "Border");
 	if(tColor)
@@ -1722,7 +1722,7 @@ void loadColors()
 	tColor = getColorSetting("Widget", "Highlight");
 	if(tColor)
 		widgetHighlightColor = tColor;
-	
+
 	// scrollbar
 	tColor = getColorSetting("Scroll", "Fill");
 	if(tColor)
@@ -1733,7 +1733,7 @@ void loadColors()
 	tColor = getColorSetting("Scroll", "Normal");
 	if(tColor)
 		scrollNormalColor = tColor;
-	
+
 	// lists
 	tColor = getColorSetting("List", "Border");
 	if(tColor)
@@ -1744,7 +1744,7 @@ void loadColors()
 	tColor = getColorSetting("List", "Text");
 	if(tColor)
 		listTextColor = tColor;
-	
+
 	// textboxes
 	tColor = getColorSetting("TextBox", "Text");
 	if(tColor)
@@ -1758,7 +1758,7 @@ void loadColors()
 	tColor = getColorSetting("TextBox", "Progress");
 	if(tColor)
 		textEntryProgressColor = tColor;
-	
+
 	// text area
 	tColor = getColorSetting("TextArea", "Fill");
 	if(tColor)
@@ -1766,7 +1766,7 @@ void loadColors()
 	tColor = getColorSetting("TextArea", "Text");
 	if(tColor)
 		textAreaTextColor = tColor;
-	
+
 	// calendar
 	tColor = getColorSetting("Calendar", "Weekend");
 	if(tColor)
@@ -1786,17 +1786,17 @@ void loadColors()
 	tColor = getColorSetting("Calendar", "DayUnderline");
 	if(tColor)
 		calendarDayUnderlineColor = tColor;
-	
+
 	// day planner
 	tColor = getColorSetting("DayPlanner", "Dots");
 	if(tColor)
 		dayPlannerBorderColor = tColor;
-	
+
 	// config
 	tColor = getColorSetting("Configuration", "Arrows");
 	if(tColor)
 		configurationArrowColor = tColor;
-		
+
 	// keyboard
 	tColor = getColorSetting("Keyboard", "Text");
 	if(tColor)
@@ -1822,17 +1822,17 @@ void loadColors()
 	tColor = getColorSetting("Keyboard", "ABCSwap");
 	if(tColor)
 		keyboardABCSwapColor = tColor;
-	
+
 	// picture viewer
 	tColor = getColorSetting("Picture", "Select");
 	if(tColor)
 		pictureSelectBorderColor = tColor;
-	
+
 	// browser
 	tColor = getColorSetting("Browser", "Hidden");
 	if(tColor)
 		browserHiddenColor = tColor;
-	
+
 	// cursor
 	tColor = getColorSetting("Cursor", "Insert");
 	if(tColor)
@@ -1840,7 +1840,7 @@ void loadColors()
 	tColor = getColorSetting("Cursor", "Overwrite");
 	if(tColor)
 		cursorOverwriteColor = tColor;
-	
+
 	// home screen date section
 	tColor = getColorSetting("Date", "Text");
 	if(tColor)
@@ -1854,7 +1854,7 @@ void loadColors()
 	tColor = getColorSetting("Date", "BorderFill");
 	if(tColor)
 		homeDateBorderFillColor = tColor;
-	
+
 	// syntax highlighting
 	tColor = getColorSetting("Editor", "Comment");
 	if(tColor)
@@ -1868,17 +1868,17 @@ void loadColors()
 	tColor = getColorSetting("Editor", "Setting");
 	if(tColor)
 		texteditorSetting = tColor;
-	
+
 	// home screen
 	tColor = getColorSetting("Home", "Highlight");
 	if(tColor)
 		homeHighlightColor = tColor;
-	
+
 	// viewer screen
 	tColor = getColorSetting("Viewer", "Bookmark");
 	if(tColor)
 		viewerBookmarkColor = tColor;
-		
+
 	// progress screens
 	tColor = getColorSetting("ProgressBar", "Border");
 	if(tColor)
@@ -1889,7 +1889,7 @@ void loadColors()
 	tColor = getColorSetting("ProgressBar", "Bar");
 	if(tColor)
 		loadingBarColor = tColor;
-	
+
 	// sound
 	tColor = getColorSetting("Sound", "SeekFill");
 	if(tColor)
@@ -1915,7 +1915,7 @@ void loadColors()
 	tColor = getColorSetting("Sound", "Arrows");
 	if(tColor)
 		soundArrowColor = tColor;
-	
+
 	// calculator
 	tColor = getColorSetting("Calculator", "ScreenFill");
 	if(tColor)
@@ -1953,7 +1953,7 @@ void loadColors()
 	tColor = getColorSetting("Calculator", "ButtonHighlight");
 	if(tColor)
 		calculatorButtonHighlightColor = tColor;
-	
+
 	// irc
 	tColor = getColorSetting("IRC", "TabFill");
 	if(tColor)
@@ -1985,7 +1985,7 @@ void loadColors()
 	tColor = getColorSetting("IRC", "ScreenText");
 	if(tColor)
 		ircScreenTextColor = tColor;
-	
+
 	// irc message customizations
 	tValue = getNumberSetting("IRC", "Notice");
 	if(tValue != -1)
@@ -2017,7 +2017,7 @@ void loadColors()
 	tValue = getNumberSetting("IRC", "Highlight");
 	if(tValue != -1)
 		ircColorHIGHLIGHT = tColor;
-	
+
 	// patch sprites on the fly to skin properly
 	k_caps[5] = keyboardTextColor;
 	k_shift[5] = keyboardTextColor;
@@ -2027,4 +2027,3 @@ void loadColors()
 	k_ret[5] = keyboardTextColor;
 	k_spl[5] = keyboardTextColor;
 }
-
