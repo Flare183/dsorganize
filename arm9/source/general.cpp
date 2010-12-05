@@ -16,7 +16,7 @@
  *  along with DSOrganize.  If not, see <http://www.gnu.org/licenses/>.    *
  *                                                                         *
  ***************************************************************************/
- 
+
 #include <nds.h>
 #include <nds\arm9\console.h>
 #include <stdio.h>
@@ -134,8 +134,8 @@ void setProgress(u32 max)
 
 void setHTMLProgress(HTML_RENDERED *htmlPage)
 {
-	setProgressVars(&curSize, &maxSize, htmlPage);	
-	
+	setProgressVars(&curSize, &maxSize, htmlPage);
+
 	curSize = 0;
 	maxSize = 0;
 }
@@ -158,7 +158,7 @@ void clearProgress()
 
 void quickSwap(int *x, int *y)
 {
-	if (x != y) 
+	if (x != y)
 	{
 		*x ^= *y;
 		*y ^= *x;
@@ -169,18 +169,18 @@ void quickSwap(int *x, int *y)
 void findDataDirectory()
 {
 	useDataDir = false;
-	
+
 	DRAGON_chdir("/");
 	if(DRAGON_FileExists("data") == FE_DIR) // detected homebrew data dir
 	{
 		DRAGON_chdir("/data/");
-		
+
 		if(DRAGON_FileExists("DSOrganize") == FE_DIR)
 			useDataDir = true;
 		else
 			DRAGON_chdir("/");
 	}
-	
+
 }
 
 void makeDirectories() // for creating the right paths to the data dir
@@ -229,52 +229,52 @@ void startvBlank()
 	if(getMode() == INITFAT || getMode() == INITPLUGIN || getMode() == DISPLAYCOW)
 	{
 		cowAnim++;
-		
+
 		if(cowAnim >= 15)
 		{
 			cowAnim = 0;
 			cowCount++;
-			
+
 			if(cowCount > 3)
 				cowCount = 0;
-			
+
 			drawStartSplash();
-			
+
 			if(getMode() != DISPLAYCOW)
 			{
 				setFont(font_arial_11);
 				setColor(0xFFFF);
 				setBold(true);
-				
+
 				bg_setClipping(5,5,250,181);
 				bg_dispString(0,0,l_fatinit);
-				
+
 				setBold(false);
-				
+
 				setFont(font_arial_9);
-				
+
 				if(getMode() == INITFAT)
 				{
 					char tStr[64];
 					sprintf(tStr, "Trying %s...", DRAGON_tryingInterface()); // \n\n%d, curSize);
-					
+
 					bg_dispString(0,25,tStr);
 				}
 				else
 				{
 					char tStr[64];
 					sprintf(tStr, "Initialized %s", DRAGON_tryingInterface()); // \n\n%d, curSize);
-					
+
 					bg_dispString(0,25,tStr);
-					
+
 					bg_dispString(0,40,"Initializing settings...");
-					
+
 					bg_drawRect(10, 65, 15, 70, 0xFFFF);
 				}
-				
+
 				bg_swapBuffers();
 			}
-			
+
 			uint16 *fourCows[] = { s_cow1, s_cow2, s_cow3, s_cow4 };
 			fb_dispSprite(112, 154, fourCows[cowCount], RGB15(0,0,31));
 			fb_swapBuffers();
@@ -285,22 +285,22 @@ void startvBlank()
 void vBlank() // in case i ever need it... oops apparently I did.
 {
 	rand(); // make sure we get real random stuff
-	
+
 	webAniHeartBeat++;
-	
+
 	incrimentBCount();
 	incrimentIRCCount();
-	
+
 	updateControlRepeats();
 	updatePictureAnimations();
 	updateRecordingCount();
-	
+
 	if(loading)
 	{
 		setFont(font_gautami_10);
 		setColor(genericTextColor);
 		fb_dispString(5, 5, loadText);
-		
+
 		if(curSize == 0)
 		{
 			direction = 1;
@@ -309,12 +309,12 @@ void vBlank() // in case i ever need it... oops apparently I did.
 		{
 			direction = -1;
 		}
-		
+
 		fb_drawFilledRect(5, getScreenHeight()-16, getScreenWidth()-6, getScreenHeight()-6, loadingBorderColor, loadingFillColor);
 		fb_drawRect(6 + (curSize << 2), getScreenHeight()-15, 17 + (curSize << 2), getScreenHeight()-7, loadingBarColor);
-		
+
 		curSize += direction;
-		
+
 		fb_swapBuffers();
 	}
 	else if(maxSize > 0)
@@ -322,10 +322,10 @@ void vBlank() // in case i ever need it... oops apparently I did.
 		// we gotta display the bar graph of how far we are
 		double percent = (double)curSize / (double)maxSize;
 		int pixel = (int)((255 - 12) * percent);
-		
+
 		fb_drawFilledRect(5, 191-15, 255-5, 191-5, loadingBorderColor, loadingFillColor);
 		fb_drawRect(6, 191-14, 6 + pixel, 191-6, loadingBarColor);
-		
+
 		fb_swapBuffers();
 	}
 	else if(isWorking())
@@ -340,7 +340,7 @@ void disableHalt()
 	haltOnOutOfMem = false;
 }
 
-touchPosition touchReadXYNew() 
+touchPosition touchReadXYNew()
 {
 	touchPosition touchPos;
 
@@ -349,14 +349,14 @@ touchPosition touchReadXYNew()
 
 	touchPos.px = IPC->touchXpx;
 	touchPos.py = IPC->touchYpx;
-	
+
 	return touchPos;
 }
 
 void *safeMalloc(size_t size)
 {
 	void *tmp = malloc(size);
-	
+
 	if(!tmp)
 	{
 		if(!haltOnOutOfMem)
@@ -364,18 +364,18 @@ void *safeMalloc(size_t size)
 			haltOnOutOfMem = true;
 			return NULL;
 		}
-		
-		char err_str[512];		
-		sprintf(err_str, "%s\n\nError %X", l_fatalerror, globalError);		
-		
+
+		char err_str[512];
+		sprintf(err_str, "%s\n\nError %X", l_fatalerror, globalError);
+
 		fatalHalt(err_str);
 	}
-	
+
 	memset(tmp, 0, size);
-	
+
 	// make sure next time will halt
 	haltOnOutOfMem = true;
-	
+
 	return tmp;
 }
 
@@ -385,10 +385,10 @@ void safeFree(void *p)
 	{
 		char err_str[512];
 		sprintf(err_str, "%s\n\nError %X", l_fatalfree, globalError);
-		
+
 		fatalHalt(err_str);
 	}
-	
+
 	free(p);
 }
 
@@ -396,48 +396,48 @@ bool isGBA(char *fName)
 {
 	char str[256];
 	char ext[256];
-	
+
 	strcpy(str, fName);
 	separateExtension(str, ext);
 	separateExtension(str, ext);
-	
+
 	strlwr(ext);
-	
+
 	if(strcmp(ext, ".sc") == 0 || strcmp(ext, ".ds") == 0)
 	{
 		return true;
 	}
-	
+
 	return false;
 }
 
 void launchNDSMethod1(char *file)
-{	
+{
 	vramSetBankD(VRAM_D_LCD);
 	REG_IE = 0;
 	REG_IME = 0;
 	REG_IF = 0xFFFF;	// Acknowledge interrupt
-	
+
 	bool doGBABoot = isGBA(file);
-	
+
 	char shortFile[256];
 	char directory[256];
-	
+
 	strcpy(directory,file);
-	
+
 	char *whereSlash = directory;
-	
+
 	while(strchr(whereSlash, '/') != NULL)
 		whereSlash = strchr(whereSlash, '/') + 1;
-	
-	whereSlash[0] = 0;	
-	
+
+	whereSlash[0] = 0;
+
 	DRAGON_chdir("/");
 	DRAGON_FILE *fp = DRAGON_fopen(file, "r");
-	
+
 	DRAGON_GetAlias(shortFile);
 	DRAGON_fclose(fp);
-	
+
 	strcat(directory, shortFile);
 	SendArm7Command(ARM7COMMAND_BOOT_MIGHTYMAX, 0);
 	exec(directory, doGBABoot, false);
@@ -503,7 +503,7 @@ void launchNDSAlt(char *file)
 {
 	if(!disablePatching)
 		patchFile(file);
-	
+
 	switch(altBoot)
 	{
 		case BOOT_MIGHTYMAX:
@@ -524,10 +524,10 @@ int format12(int x)
 {
 	if( x > 12 )
 		x -= 12;
-	
+
 	if( x == 0 )
 		x = 12;
-		
+
 	return x;
 }
 
@@ -542,19 +542,19 @@ void abbreviateString(char *str, int maxLen, uint16 **FP)
 {
 	if(getStringWidth(str, FP) <= maxLen)
 		return;
-		
+
 	strcat(str,"...");
 	while(getStringWidth(str, FP) > maxLen)
 	{
 		str[strlen(str)-4] = '.';
 		str[strlen(str)-1] = 0;
-	}		
+	}
 }
 
 void separateExtension(char *str, char *ext)
 {
 	int x = 0;
-	
+
 	for(int y = strlen(str) - 1; y > 0; y--)
 	{
 		if(str[y] == '.')
@@ -570,7 +570,7 @@ void separateExtension(char *str, char *ext)
 			return;
 		}
 	}
-	
+
 	if(x > 0)
 	{
 		int y = 0;
@@ -584,19 +584,19 @@ void separateExtension(char *str, char *ext)
 		ext[y] = 0;
 	}
 	else
-		ext[0] = 0;	
+		ext[0] = 0;
 }
 
 bool checkHelp()
 {
 	#ifndef MALLOC_TRACK
 	#ifndef SCREENSHOT_MODE
-	
+
 	#ifdef DUMP_ARM7
 	if(keysDown() & KEY_SELECT)
 	{
 		scanKeys();
-		
+
 		soundIPC->interlaced = (s16 *)trackMalloc(64*1024, "dump");
 		SendArm7Command(ARM7COMMAND_DUMP, 0);
 	}
@@ -604,16 +604,16 @@ bool checkHelp()
 	if(((keysDown() & KEY_SELECT) || (keysHeld() & KEY_SELECT)) && getMode() != ABOUT && !isQueued())
 	{
 		scanKeys();
-		
+
 		if(isHelpPage())
 		{
 			drawHelpScreen();
-			
+
 			vblankWait();
 			if(allowSwapBuffer)
 				fb_swapBuffers();
 			bg_swapBuffers();
-			
+
 			return true;
 		}
 	}
@@ -626,7 +626,7 @@ bool checkHelp()
 		printMallocList();
 	}
 	#endif
-	
+
 	return false;
 }
 
@@ -634,11 +634,11 @@ void debugPrint(char *str)
 {
 	// To ensure it comes out on any debugging screens i have up
 	dprintf(str);
-	
+
 	fb_setDefaultClipping();
 	fb_dispString(3,3,str);
-	
-	vblankWait();	
+
+	vblankWait();
 	fb_swapBuffers();
 }
 
@@ -646,35 +646,35 @@ void debugPrintHalt(char *str)
 {
 	irqSet(IRQ_VBLANK, 0);
 	fb_swapBuffers();
-	
+
 	fb_setBGColor(0xFFFF);
 	setColor(0);
-	
+
 	debugPrint(str);
-	
+
 	while(1)
 	{
 		vblankWait();
 		scanKeys();
-		
+
 		if(keysDown() & KEY_SELECT)
 		{
 			while(keysHeld() & KEY_SELECT)
 				scanKeys();
-			
+
 			irqSet(IRQ_VBLANK, vBlank);
 			return;
 		}
 	}
-	
+
 }
 
 void fatalHalt(char *str)
-{	
+{
 	debugPrintHalt(str);
-	
-	while(1) 
-	{ 
+
+	while(1)
+	{
 		// empty, halting processor
 	}
 }
@@ -682,30 +682,30 @@ void fatalHalt(char *str)
 void *trackMalloc(u32 length, char *desc)
 {
 	void *tmp = safeMalloc(length);
-	
+
 	#ifdef MALLOC_TRACK
-	
-	// add here	
+
+	// add here
 	if(mallocListPtr < 100)
-	{	
+	{
 		mallocList[mallocListPtr].memLocation = (u32)tmp;
 		mallocList[mallocListPtr].size = (u32)length;
 		strcpy(mallocList[mallocListPtr].description, desc);
-		
-		mallocListPtr++;	
+
+		mallocListPtr++;
 	}
-	
+
 	// return normal
 	#endif
-	
+
 	return tmp;
 }
 
 void trackFree(void *tmp)
 {
 	#ifdef MALLOC_TRACK
-	
-	// subtract here	
+
+	// subtract here
 	for(int i=0;i<mallocListPtr;i++)
 	{
 		if(mallocList[i].memLocation == (u32)tmp)
@@ -716,15 +716,15 @@ void trackFree(void *tmp)
 				mallocList[j].size = mallocList[j+1].size;
 				strcpy(mallocList[j].description, mallocList[j+1].description);
 			}
-			
+
 			mallocListPtr--;
 			break;
 		}
 	}
-	
+
 	// do normal
 	#endif
-	
+
 	safeFree(tmp);
 }
 
@@ -733,19 +733,19 @@ void *trackRealloc(void *tmp, u32 length)
 	#ifdef MALLOC_TRACK
 	u32 old = (u32)tmp;
 	#endif
-	
+
 	void *newTmp = realloc(tmp,length);
-	
+
 	if(!newTmp)
 	{
 		debugPrintHalt(l_fatalerror);
-		
-		while(1) 
-		{ 
+
+		while(1)
+		{
 			// empty, halting processor
 		}
 	}
-	
+
 	#ifdef MALLOC_TRACK
 	for(int i=0;i<mallocListPtr;i++)
 	{
@@ -766,14 +766,14 @@ void *trackRealloc(void *tmp, u32 length)
 					mallocList[j].size = mallocList[j+1].size;
 					strcpy(mallocList[j].description, mallocList[j+1].description);
 				}
-				
+
 				mallocListPtr--;
 				break;
 			}
 		}
 	}
 	#endif
-	
+
 	return newTmp;
 }
 
@@ -781,30 +781,30 @@ void *trackRealloc(void *tmp, u32 length)
 void printMallocList()
 {
 	fb_swapBuffers();
-	
+
 	setFont(font_gautami_10);
 	setColor(0);
-	
+
 	if(mallocListPtr > 0)
 	{
 		for(int i=0;i<mallocListPtr;i++)
 		{
 			fb_dispString((i%3) * 86,(i/3)*11, mallocList[i].description);
-			
+
 			//char str[30];
 			//sprintf(str, "%d", mallocList[i].size);
-			
+
 			//fb_dispString((i%3) * 86,(i/3)*22+11, str);
 		}
 	}
 	else
 		fb_dispString(0,0,"Nothing in malloc list");
-	
+
 	vblankWait();
 	fb_swapBuffers();
-	
+
 	while(keysHeld())
-		scanKeys();	
+		scanKeys();
 }
 #endif
 
@@ -837,13 +837,13 @@ void gotoApplication(int app, bool transPos)
 	{
 		whichApp = app;
 	}
-	
+
 	// Ensure that they all start with fresh cursor
 	resetCursor();
-	
+
 	switch(whichApp)
 	{
-		case 0:			
+		case 0:
 			setMode(CALENDAR);
 			initCalendar();
 			break;
@@ -894,7 +894,7 @@ void gotoApplication(int app, bool transPos)
 }
 
 void returnHome()
-{	
+{
 	setMode(HOME);
 	initHome();
 }
@@ -905,7 +905,7 @@ bool isNumerical(char c)
 		return false;
 	if(c > '9')
 		return false;
-	
+
 	return true;
 }
 
@@ -913,7 +913,7 @@ void writeDebug(const char *s, ...)
 {
 	bool shouldFree = true;
 	char *temp = (char *)malloc(8192);
-	
+
 	if(!temp)
 	{
 		shouldFree = false;
@@ -926,7 +926,7 @@ void writeDebug(const char *s, ...)
 		vsprintf(temp,s,marker);
 		va_end(marker);
 	}
-	
+
 	DRAGON_preserveVars();
 	DRAGON_chdir("/");
 	DRAGON_FILE *fp = DRAGON_fopen("debug.txt", "a");
@@ -935,7 +935,7 @@ void writeDebug(const char *s, ...)
 	DRAGON_fputc('\n', fp);
 	DRAGON_fclose(fp);
 	DRAGON_restoreVars();
-	
+
 	if(shouldFree)
 	{
 		safeFree(temp);
@@ -971,34 +971,34 @@ void osprintf(char *out, const char* fmt, ...)
 	int pos = 0;
 	void *args;
 	va_list marker;
-	
+
 	va_start(marker,fmt);
 
 	args = va_arg(marker, void *);
 	while(numArgs < 10)
 	{
 		vaArray[numArgs] = args;
-		args = va_arg(marker, void *);		
-		
+		args = va_arg(marker, void *);
+
 		numArgs++;
 	}
-	
+
 	va_end(marker);
-	
+
 	char c = 'A'; // A is for Apple!
-	
+
 	while(c != 0)
 	{
 		c = *fmt;
-		
+
 		fmt++;
-		
+
 		if(c == 0)
 		{
 			out[pos] = 0;
 			break;
 		}
-		
+
 		if(c == '%')
 		{
 			int i = 0;
@@ -1014,56 +1014,56 @@ void osprintf(char *out, const char* fmt, ...)
 					}
 					else
 					{
-						i = (*fmt) - '1';			
+						i = (*fmt) - '1';
 						if((u32)vaArray[i] != 0)
 						{
 							out[pos] = (u32)vaArray[i];
 							pos++;
 						}
 					}
-					
+
 					break;
 				case 'd':
 				case 'D':
 				{
 					fmt++;
 					i = (*fmt) - '1';
-					
+
 					char strTmp[18];
 					sprintf(strTmp, "%d", (u32)vaArray[i]);
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
-					}							
-					
+					}
+
 					break;
 				}
 				case 's':
 				case 'S':
-				{							
+				{
 					fmt++;
 					i = (*fmt) - '1';
-					
+
 					char *strPtr = (char *)vaArray[i];
-					
+
 					while(*strPtr != 0)
-					{								
+					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
-					}				
-					
+					}
+
 					break;
 				}
 				case 'h':
 				{
 					bool milT = false;
-					
+
 					fmt++;
 					switch(*fmt)
 					{
@@ -1071,25 +1071,25 @@ void osprintf(char *out, const char* fmt, ...)
 						case 'M':
 							milT = true;
 					}
-					
+
 					char strTmp[3];
 					sprintf(strTmp, "%d", getHour(milT));
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
 				}
 				case 'H':
 				{
 					bool milT = false;
-					
+
 					fmt++;
 					switch(*fmt)
 					{
@@ -1097,125 +1097,125 @@ void osprintf(char *out, const char* fmt, ...)
 						case 'M':
 							milT = true;
 					}
-					
+
 					char strTmp[3];
 					sprintf(strTmp, "%02d", getHour(milT));
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
 				}
 				case 'm':
 				{
 					char strTmp[3];
 					sprintf(strTmp, "%d", getMinute());
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
 				}
 				case 'M':
 				{
 					char strTmp[3];
 					sprintf(strTmp, "%02d", getMinute());
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
 				}
 				case 't':
 				{
 					char strTmp[3];
 					sprintf(strTmp, "%d", getSecond());
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
 				}
 				case 'T':
 				{
 					char strTmp[3];
 					sprintf(strTmp, "%02d", getSecond());
-					
+
 					char *strPtr = strTmp;
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
-				}								
-				case 'a':				
+				}
+				case 'a':
 				case 'A':
 				{
 					char *strPtr = l_ampm[isPM()];
-					
+
 					while(*strPtr != 0)
 					{
 						out[pos] = *strPtr;
 						pos++;
 						strPtr++;
 					}
-					
+
 					break;
-				}							
-				case 'k':				
+				}
+				case 'k':
 				case 'K':
 				{
 					out[pos] = CONTROL_COLOR;
 					pos++;
-					
+
 					break;
-				}						
-				case 'b':				
+				}
+				case 'b':
 				case 'B':
 				{
 					out[pos] = CONTROL_BOLD;
 					pos++;
-					
+
 					break;
-				}				
-				case 'u':				
+				}
+				case 'u':
 				case 'U':
 				{
 					out[pos] = CONTROL_UNDERLINE;
 					pos++;
-					
+
 					break;
 				}
 			}
-			
+
 			fmt++;
 		}
 		else if(c == '\\')
@@ -1239,7 +1239,7 @@ void osprintf(char *out, const char* fmt, ...)
 					pos++;
 					break;
 			}
-			
+
 			fmt++;
 		}
 		else
@@ -1254,7 +1254,7 @@ int cursorPosCall(int pos, u32 c, int pass, int xPos, int yPos)
 {
 	if(!(keysHeld() & KEY_TOUCH))
 		return 0;
-	
+
 	if(pass == 1)
 		return 0;
 	if(!pos)
@@ -1262,32 +1262,32 @@ int cursorPosCall(int pos, u32 c, int pass, int xPos, int yPos)
 		foundCursor = false;
 		tCursor = -1;
 	}
-	
+
 	if(foundCursor)
 		return 0;
-		
-	touchPosition t = touchReadXYNew();	
+
+	touchPosition t = touchReadXYNew();
 	int tWidth = (getCharWidth(c) >> 1)+1;
-	
+
 	if((t.px >= (xPos - tWidth)) && (t.px <= (xPos + tWidth)))
 	{
 		tCursor = pos;
 		foundCursor = true;
 	}
-	
+
 	return 0;
 }
 
 int getTouchCursor()
 {
 	int tRet = -2;
-	
+
 	if(foundCursor)
 		tRet = tCursor;
-	
+
 	tCursor = -1;
 	foundCursor = false;
-	
+
 	return tRet;
 }
 
@@ -1298,14 +1298,14 @@ char *cistrstr(char *haystack, char *needle)
 	{
 		return haystack;
 	}
-	
+
 	for(;*haystack;++haystack)
 	{
 		if(toupper(*haystack) == toupper(*needle))
 		{
 			/* Matched starting char -- loop through remaining chars. */
 			const char *h, *n;
-			
+
 			for(h = haystack, n = needle;*h && *n;++h, ++n)
 			{
 				if(toupper(*h) != toupper(*n))
@@ -1313,24 +1313,24 @@ char *cistrstr(char *haystack, char *needle)
 					break;
 				}
 			}
-			
+
 			if(!*n) /* matched all of 'needle' to null termination */
 			{
 				return haystack; /* return the start of the match */
 			}
 		}
 	}
-	
+
 	return 0;
 }
 
 void strccat(char *str, char c)
 {
 	char tStr[2];
-	
+
 	tStr[0] = c;
 	tStr[1] = 0;
-	
+
 	strcat(str, tStr);
 }
 
@@ -1340,11 +1340,11 @@ void takeScreenshot()
 	if(keysDown() & KEY_SELECT)
 	{
 		static PICTURE_DATA ssPicture;
-		
+
 		initImage(&ssPicture, 0, 0);
 		createImage(&ssPicture, 256, 192 * 2, 0xFFFF);
 		sprintf(ssPicture.fileName, "screenshot%d%d%d%d%d%d.png", getDay(), getMonth(), getYear(), getHour(true), getMinute(), getSecond());
-		
+
 		if(screensFlipped() || configFlipped())
 		{
 			memcpy((uint16 *)ssPicture.rawData, fb_backBuffer(), 256*192*2);
@@ -1356,9 +1356,9 @@ void takeScreenshot()
 			memcpy((uint16 *)ssPicture.rawData, fb_backBuffer(), 256*192*2);
 			memcpy((uint16 *)ssPicture.rawData + 256*192, bg_backBuffer(), 256*192*2);
 		}
-		
+
 		DRAGON_chdir("/");
-		saveImageFromHandle(&ssPicture);				
+		saveImageFromHandle(&ssPicture);
 		freeImage(&ssPicture);
 	}
 }
@@ -1368,23 +1368,23 @@ bool areEqual(char *domain1, char *domain2, int length)
 {
 	// Bytes tested = nothing
 	int count = 0;
-	
+
 	// Loop while they equal
 	while(makeLower(*domain1) == makeLower(*domain2))
 	{
 		// Keep track of bytes tested
 		count++;
-		
+
 		// We hit the end on both, they are the same
 		if(*domain1 == 0 || count == length)
 		{
 			return true;
 		}
-		
+
 		domain1++;
 		domain2++;
 	}
-	
+
 	// They didn't equal somewhere
 	return false;
 }
