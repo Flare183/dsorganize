@@ -1,4 +1,5 @@
 * README for DSOrganize
 ** DSOrganize is originally written by DragonMinded
 *** Edited by Jesse N. Richardson (Flare183)
+** This Repo has been moved to http://negativeflare.xyz:3000/NegativeFlare/dsorganize
 **** See the CHANGELOG.org file for the revision history from Dragon's Site
